@@ -4,6 +4,8 @@ module Parser exposing (firstParse
     , parseMeta
     , parseMessages
     , findWord
+    , getTime 
+    , getDate
     , main
     , s, t)
 
@@ -20,9 +22,8 @@ type alias Message =
     , text : String
     }
 
-type alias Meta = 
-    { time : String --We can deal with this later
-    , zone : String 
+type alias Meta = -- eventually we won't need this and can just use Date
+    { zone : String --We can deal with this later
     , date : Date.Date
     }
 
@@ -75,16 +76,33 @@ parseMeta m =
     in 
         case arr of 
             [_,m,d,y,_,t,z] ->
-            { time = t
-            , zone = z
-            , date = getDate (y,m,d)
+            { zone = z
+            , date = getDate (y,m,d,t)
             }
             _ -> Debug.crash "fail"
 
-getDate : (String, String, String) -> Date 
-getDate (y, m, d) = 
-    case Date.fromString (y++"-"++(stringToMonthNumber m)++"-"++(appendZeroToNumber d)) of 
+getDate : (String, String, String, String) -> Date 
+getDate (y, m, d, t) = 
+    case Date.fromString (y++"-"++(stringToMonthNumber m)++"-"++(appendZeroToNumber d)++(getTime t)) of 
         Ok x -> x 
+        _ -> Debug.crash "fail"
+
+getTime : String -> String 
+getTime t = 
+    case String.split ":" t of 
+        [h,m] -> 
+            let 
+                mins = String.left 2 m
+                am = String.right 2 m 
+                hrs = case String.toInt h of 
+                    Ok x -> x 
+                    _ -> Debug.crash "Fail"
+                hours = 
+                    if am == "am" then (appendZeroToNumber (toString hrs)) 
+                    else if am == "pm" then toString (hrs + 12)
+                    else Debug.crash "fail"
+            in 
+                "T" ++ hours ++ ":" ++ mins ++ ":00"
         _ -> Debug.crash "fail"
 
 makeChart : String -> String -> List String -> Html a
