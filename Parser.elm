@@ -22,6 +22,12 @@ type alias Message =
     , text : String
     }
 
+type alias MultimediaMessage = 
+    { user : String
+    , meta : Meta 
+    , msgs : List Node 
+    }
+
 type alias Meta = -- eventually we won't need this and can just use Date
     { zone : String --We can deal with this later
     , date : Date.Date
@@ -46,6 +52,20 @@ thirdParse ns = case ns of
     (Element "div" [("class","message")] ([Element "div" [("class","message_header")] ([Element "span" [("class","user")] ([Text usr]) ,Element "span" [("class","meta")] ([Text mta])])]))::(Element "p" [] ([Text txt]))::rest -> 
         Just { user=usr, meta=parseMeta mta, text=txt }
     _ -> Nothing
+
+fourthParse : List Node -> Maybe MultimediaMessage
+fourthParse ns = case ns of 
+    (Element "div" [("class","message")] ([Element "div" [("class","message_header")] ([Element "span" [("class","user")] ([Text usr]) ,Element "span" [("class","meta")] ([Text mta])])]))::(Element "p" [] (nds))::rest -> 
+        Just { user=usr, meta=parseMeta mta, msgs=nds }
+    _ -> Nothing
+
+parseFromTree : Node -> List ParsedMessage
+parseFromTree t = case t of 
+    Text _ -> []
+    Comment _ -> []
+    Element _ _ ns -> case parseMessagesFromNodes ns of 
+        [] -> List.foldr (\x y -> List.append (parseFromTree x) y) [] ns 
+        ms -> ms 
 
 parseMessagesFromNodes : List Node -> List ParsedMessage
 parseMessagesFromNodes ns = case ns of 
