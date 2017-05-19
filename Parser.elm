@@ -6,6 +6,7 @@ module Parser exposing (firstParse
     , findWord
     , getTime 
     , getDate
+    , histogram
     , main
     , s, t)
 
@@ -14,6 +15,7 @@ import Regex exposing (..)
 import Date exposing (..)
 import Chart exposing (..)
 import Html exposing (Html)
+import Dict exposing (..)
 
 
 type alias Message = 
@@ -38,6 +40,9 @@ type alias ParsedMessage =
     , meta : Meta
     , text : String
     }
+
+type alias Word = String
+type alias Freqencies = (Int, Int)
 
 firstParse : String -> List Node 
 firstParse s = HtmlParser.parse s 
@@ -85,9 +90,45 @@ stringContainsWord s w =
     in 
         List.member w arr 
 
+stringWordCount : String -> String -> Int
+stringWordCount s w = 
+    let 
+        arr = split All (Regex.regex "[,.?! ]") s
+    in 
+        List.foldr 
+            (\x y -> if x==w then 1+y else y)
+            0
+            arr
+
 findWord : String -> List ParsedMessage -> List ParsedMessage
 findWord w ms = 
     List.filter (\m -> (stringContainsWord m.text w)) ms
+
+makeHistogram : List String -> Dict Word Int
+makeHistogram words = case words of
+    word::words -> 
+        let 
+            dict = makeHistogram words
+            count = get word dict
+        in 
+            case count of
+                Just n -> insert word (n+1) dict
+                Nothing -> insert word 1 dict
+    [] -> Dict.empty
+
+getWords : ParsedMessage -> List String
+getWords pm = 
+    let words = pm.text in
+    split All (Regex.regex "[,.?! ]") words
+
+histogram : String -> Dict Word Int
+histogram s = 
+    let 
+        msgs = parseMessages s 
+        allWords = List.concat <| List.map (getWords) msgs
+    in 
+        makeHistogram allWords
+
 
 parseMeta : String -> Meta
 parseMeta m = 
@@ -133,8 +174,17 @@ makeChart s title xs =
     in 
         Chart.toHtml (Chart.title title (Chart.vBar ys))
 
+graphHistogram : String -> String -> Html a
+graphHistogram s title = 
+    let 
+        d = List.map 
+                (\x -> (toFloat (Tuple.second x), Tuple.first x))
+                (Dict.toList (histogram s))
+    in 
+        Chart.toHtml (Chart.title title (Chart.vBar d))
+
 main = 
-    makeChart t toB ["a", "an", "the"]
+    graphHistogram t "Histogram yayyyyyy"
 
 stringToMonthNumber : String -> String 
 stringToMonthNumber s = case s of 
