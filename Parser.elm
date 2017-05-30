@@ -158,7 +158,7 @@ makeHistogram words = case words of
             count = get word dict
         in 
             case count of
-                Just n -> insert word (n+1) dict
+                Just n  -> insert word (n+1) dict
                 Nothing -> insert word 1 dict
     [] -> Dict.empty
 
@@ -245,7 +245,7 @@ getTime t =
                 am = String.right 2 m 
                 hrs = case String.toInt h of 
                     Ok x -> x 
-                    _ -> Debug.crash "Fail"
+                    _    -> Debug.crash "Fail"
                 hours = 
                     if am == "am" then (appendZeroToNumber (toString hrs)) 
                     else if am == "pm" then toString (hrs + 12)
@@ -302,13 +302,13 @@ updateFreq n b = case b of
 findIndex : comparable -> List comparable -> Int
 findIndex x xs = 
     case xs of 
-        [] -> Debug.crash "findIndex: Not found (shouldn't happen)"
+        []      -> Debug.crash "findIndex: Not found (shouldn't happen)"
         x_::xs_ -> if x == x_ then 0 else 1 + (findIndex x xs_)
 
 findElt : Int -> List a -> a
 findElt n xs = 
     case xs of 
-        [] -> Debug.crash "findElt: Oob (shouldn't happen)"
+        []     -> Debug.crash "findElt: Oob (shouldn't happen)"
         x::xs_ -> if n == 0 then x else findElt (n-1) xs_
 
 getWords : ParsedMessage -> List String
@@ -350,10 +350,10 @@ makeRectangle width usr1 usr2 strs lbl fq scl =
                 else medColors
                 index = (findIndex w strs) % 7 -- number of colors per shade
                 color = findElt index shade
-                rect = Collage.filled color (Collage.rect  width ((toFloat fq) * scl + (scl/2)))
-                text = Collage.text (Text.fromString (u ++ "." ++ w ++ ":" ++ (toString fq)))
-                {-newline not working?-}
-                obj = Collage.group [rect, (Collage.moveY (-1 * width) text)]
+                rect  = Collage.filled color (Collage.rect  width ((toFloat fq) * scl + (scl/2)))
+                text  = Collage.text (Text.fromString (u ++ "." ++ w ++ ":" ++ (toString fq)))
+                {-newline looks like a regular space-}
+                obj  = Collage.group [rect, (Collage.moveY (-1 * width) text)]
             in
                 obj
 
@@ -395,7 +395,7 @@ makeCollage width fs =
         Collage.collage length length fs 
 
 ---------------------------------------------------------------------------------
-{-model, view, update-}
+{-model, view, update, main-}
 ---------------------------------------------------------------------------------
 type alias Model = 
     { words : List String 
@@ -416,31 +416,31 @@ initialModel = {words=[], file=Nothing, nextWord=""}
 update : Msg -> Model -> Model 
 update msg model = 
     case msg of 
-        Word w -> {model | nextWord = w}
-        File f -> {model | file = Just f}
+        Word w     -> {model | nextWord = w}
+        File f     -> {model | file = Just f}
         ResetWords -> {model | words = []}
-        Reset -> initialModel
-        Enter -> if String.isEmpty model.nextWord then model 
+        Reset      -> initialModel
+        Enter      -> if String.isEmpty model.nextWord then model 
             else {model | words = model.nextWord::model.words, nextWord = ""}
 
 view : Model -> Html Msg 
 view model = 
     let 
         resetWords = Html.button [onClick ResetWords] [Html.text "Reset Words"] 
-        reset = Html.button [onClick Reset] [Html.text "Reset"]
-        enter = Html.button [onClick Enter] [Html.text "Enter"]
-        word = Html.input [ type_ "word", placeholder "Enter word", onInput Word ] []
-        file = Html.input [type_ "file", placeholder "Enter file", onInput File ] []
-        display = Html.text ("Words: " ++ (toString model.words))
-        enterword = Html.span [] [word, enter]
-        resets = Html.span [] [resetWords, reset]
-        break = Html.br [] []
-        ms = parseMessages u
-        w = 100
-        rs = makeRectangles w w lucyUsrRegex gamalUsrRegex model.words ms
-        c = makeCollage w rs
-        collage = Html.div [] [Element.toHtml c] 
-        all =
+        reset      = Html.button [onClick Reset] [Html.text "Reset"]
+        enter      = Html.button [onClick Enter] [Html.text "Enter"]
+        word       = Html.input [ type_ "word", placeholder "Enter word", onInput Word ] []
+        file       = Html.input [type_ "file", placeholder "Enter file", onInput File ] []
+        display    = Html.text ("Words: " ++ (toString model.words))
+        enterword  = Html.span [] [word, enter]
+        resets     = Html.span [] [resetWords, reset]
+        break      = Html.br [] []
+        ms         = parseMessages u
+        w          = 100
+        rs         = makeRectangles w w lucyUsrRegex gamalUsrRegex model.words ms
+        c          = makeCollage w rs
+        collage    = Html.div [] [Element.toHtml c] 
+        all        =
             Html.div 
                 [] 
                 [ enterword
@@ -452,7 +452,6 @@ view model =
                 , collage ]
     in 
         all
-        --Html.span [] [word, enter, file, fileenter, resetWords, reset, display]
 
 main : Program Never Model Msg
 main = Html.beginnerProgram 
@@ -461,30 +460,10 @@ main = Html.beginnerProgram
     , update = update
     }
 
----------------------------------------------------------------------------------
-{-main-}
----------------------------------------------------------------------------------
-main2 : Html msg
-main2 = 
-    let 
-        ms = parseMessages u
-        w = 100
-        rs = makeRectangles w w lucyUsrRegex gamalUsrRegex ["to"] ms
-        c = makeCollage w rs 
-        style =
-        Attr.style <|
-          [ ("position", "fixed")
-          , ("top", "50%")
-          , ("left", "50%")
-          , ("transform", "translate(-50%, -50%)")
-          ]
-        text = Html.text ("This is like a graph or something? " ++ (toString (List.length rs)))
-    in 
-        Html.div [style] [text, Element.toHtml c]
-
 ----------------------------------------------------------------------------------
 {-make charts sing other libraries-}
 ----------------------------------------------------------------------------------
+
 {-chart of frequencies for a given word-}
 makeChart : String -> String -> List String -> Html a
 makeChart s title xs = 
