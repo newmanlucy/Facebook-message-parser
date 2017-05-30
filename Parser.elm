@@ -21,6 +21,9 @@ import Color exposing (..)
 import Element exposing (..)
 import Html.Attributes as Attr exposing (..)
 import Text exposing (..)
+import Mouse exposing (..)
+import Html.Events exposing (..)
+import Keyboard exposing (..)
 -----------------------------------------------------------------------
 type alias Message = 
     { user : String
@@ -170,7 +173,7 @@ histogram s =
 
 
 ------------------------------------------------------------------------
-{-helper functions-}
+{-helpers-}
 ------------------------------------------------------------------------
 ---- bar label ----
 getYearMonth : BarLabel -> (Int, Int)
@@ -392,10 +395,77 @@ makeCollage width fs =
         Collage.collage length length fs 
 
 ---------------------------------------------------------------------------------
+{-model, view, update-}
+---------------------------------------------------------------------------------
+type alias Model = 
+    { words : List String 
+    , file : Maybe String
+    , nextWord : String
+    }
+
+type Msg 
+    = Word String 
+    | File String
+    | ResetWords
+    | Reset
+    | Enter
+
+initialModel : Model
+initialModel = {words=[], file=Nothing, nextWord=""}
+
+update : Msg -> Model -> Model 
+update msg model = 
+    case msg of 
+        Word w -> {model | nextWord = w}
+        File f -> {model | file = Just f}
+        ResetWords -> {model | words = []}
+        Reset -> initialModel
+        Enter -> if String.isEmpty model.nextWord then model 
+            else {model | words = model.nextWord::model.words, nextWord = ""}
+
+view : Model -> Html Msg 
+view model = 
+    let 
+        resetWords = Html.button [onClick ResetWords] [Html.text "Reset Words"] 
+        reset = Html.button [onClick Reset] [Html.text "Reset"]
+        enter = Html.button [onClick Enter] [Html.text "Enter"]
+        word = Html.input [ type_ "word", placeholder "Enter word", onInput Word ] []
+        file = Html.input [type_ "file", placeholder "Enter file", onInput File ] []
+        display = Html.text ("Words: " ++ (toString model.words))
+        enterword = Html.span [] [word, enter]
+        resets = Html.span [] [resetWords, reset]
+        break = Html.br [] []
+        ms = parseMessages u
+        w = 100
+        rs = makeRectangles w w lucyUsrRegex gamalUsrRegex model.words ms
+        c = makeCollage w rs
+        collage = Html.div [] [Element.toHtml c] 
+        all =
+            Html.div 
+                [] 
+                [ enterword
+                , resets
+                , file
+                , break
+                , display
+                , break
+                , collage ]
+    in 
+        all
+        --Html.span [] [word, enter, file, fileenter, resetWords, reset, display]
+
+main : Program Never Model Msg
+main = Html.beginnerProgram 
+    { model = initialModel
+    , view = view
+    , update = update
+    }
+
+---------------------------------------------------------------------------------
 {-main-}
 ---------------------------------------------------------------------------------
-main : Html msg
-main = 
+main2 : Html msg
+main2 = 
     let 
         ms = parseMessages u
         w = 100
