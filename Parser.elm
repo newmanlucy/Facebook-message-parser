@@ -6,7 +6,9 @@ port module Parser exposing (thirdParse
     , getDate
     , histogram
     , gamalUsrRegex
+    , lucyUsrRegex
     , stringWordCount
+    , makeRectangles
     , main
     , s, t)
 
@@ -396,6 +398,7 @@ makeRectangles width scl usr1 usr2 strs ms =
         maxFreq = case List.maximum (List.map (\x -> (Tuple.second x)) l2) of 
             Nothing -> 0
             Just x -> x
+        log = Debug.log (toString maxFreq)
         {-add in empties?-}
         l4 = List.map 
             (\x -> makeRectangle width maxFreq usr1 usr2 strs (Tuple.first x) (Tuple.second x) scl) 
@@ -441,7 +444,7 @@ makeKey usr1 usr2 strs =
         usr1box    = makeLabeledBox usr1 Color.darkGrey 
         usr2box    = makeLabeledBox usr2 Color.lightGrey
         wordboxes  = makeKey_ (List.sort strs) 0
-        boxes      = List.reverse (usr1box::(usr2box::wordboxes))
+        boxes      = wordboxes ++ [usr2box, usr1box]
         movedBoxes = moveRectangles_ 0 25 boxes False 
     in
         Collage.group movedBoxes  
@@ -525,21 +528,37 @@ monthConvert i = case i of
     _  -> Debug.crash "Shouldn't happen"
 
 {-frequency of messages per hour-}
-hours : String -> List (String, Int)
+hours : List ParsedMessage -> List (String, Int)
 hours s  = List.map 
         (\(x,y) -> (hourConvert x,y)) 
-        (toList (dateByNumberTime (parseMessages s) Date.hour))
+        (toList (dateByNumberTime s Date.hour))
 
 {-frequency of messages per month-}
-months : String -> List (String, Int)
+months : List ParsedMessage -> List (String, Int)
 months s = List.map
         (\(x,y) -> (monthConvert x, y))
-        (toList (dateByNumberTime (parseMessages s) (\x -> m2i (Date.month x))))
+        (toList (dateByNumberTime s (\x -> m2i (Date.month x))))
 
 {-frequency of messages per year-}
-years : String -> List (Int, Int)
-years s = toList (dateByNumberTime (parseMessages s) Date.year)
+years : List ParsedMessage -> List (Int, Int)
+years s = toList (dateByNumberTime s Date.year)
 
+maybeApply : Maybe (List ParsedMessage) -> (List ParsedMessage -> b) -> b
+maybeApply m f = case m of
+    Nothing -> Debug.crash "We are leaving functional land so there are errors."
+    Just x  -> f x
+
+userMessages : List ParsedMessage -> Dict String (List ParsedMessage)
+userMessages msgs = case msgs of 
+    [] -> Dict.empty
+    hd::rest -> 
+        let 
+            d = userMessages rest
+            g = Dict.get hd.user d
+        in 
+        case g of
+            Nothing -> Dict.insert hd.user [hd] d
+            Just x  -> Dict.insert hd.user (hd::x) d
 
 ---------------------------------------------------------------------------------
 {-model, view, update, main-}
@@ -591,25 +610,35 @@ update msg model =
 view : Model -> Html Msg 
 view model = 
     let 
-        resetWords = Html.button [onClick ResetWords] [Html.text "Reset Words"] 
-        reset      = Html.button [onClick Reset] [Html.text "Reset"]
-        enter      = Html.button [onClick Enter] [Html.text "Enter"]
-        word       = Html.input [ type_ "word", placeholder "Enter word", onInput Word ] []
-        file       = Html.input [type_ "file", placeholder "Enter file", onInput File ] []
-        display    = Html.text ("Words: " ++ (toString (List.sort model.words)))
+        resetWords = Html.button [Attr.class "button", onClick ResetWords] 
+            [Html.text "Reset Words"] 
+        reset      = Html.button [Attr.class "button", onClick Reset] 
+            [Html.text "Reset"]
+        enter      = Html.button [Attr.class "button", onClick Enter]
+            [Html.text "Enter"]
+        word       = Html.input 
+            [Attr.class "input", type_ "word", placeholder "Enter word", onInput Word ] 
+            []
+        file       = Html.input 
+            [Attr.class "button", type_ "file", placeholder "Enter file", onInput File ] 
+            []
+        display    = Html.div [Attr.class "largetext"]
+            [Html.text ("Words: " ++ (toString (List.sort model.words)))]
         enterword  = Html.span [] [word, enter]
         resets     = Html.span [] [resetWords, reset]
         send       = Html.button [onClick SendInfo] [Html.text "Send"]
         graph      = Html.button [onClick (GraphInfo ["one", "two"])] [Html.text "Graph"]
         t          = "Graph of message frequncies between Lucy and Gamal in Aug. 2016"
-        title      = Html.text t
-        break      = Html.br [] []
+        title      = Html.div [Attr.class "largetext"] [Html.text t]
+        break      = Html.br [Attr.class "break"] []
         ms         = parseMessages u
         w          = 40
         rs         = makeRectangles w w lucyUsrRegex gamalUsrRegex model.words ms
         c          = makeCollage w rs
         k          = Collage.collage 100 100 [makeKey "Lucy" "Gamal" model.words]
         key        = Html.div [Attr.class "graph"] [Element.toHtml k]
+        histTitle  = "histogram of some of the words in a sample of Facebook messages"
+        histogram  = graphHistogram u histTitle
         collage    = Html.div [Attr.class "graph"] [Element.toHtml c]
         results    = Html.span [] [collage, key] 
         all        =
@@ -617,14 +646,15 @@ view model =
                 [] 
                 [ enterword
                 , resetWords
+                , break
                 , file
                 , break
                 , break
-                , display
                 , break
                 , title
                 , break
-                , results ]
+                , results
+                , histogram ]
     in 
         all
 
@@ -663,11 +693,6 @@ graphHistogram s title =
                         (Dict.toList (Dict.remove "" (histogram s)))))
     in 
         Chart.toHtml (Chart.title title (Chart.vBar d))
-
-{-
-main = 
-    graphHistogram u "histogram of some of the words in a sample of Facebook messages"
--}
 
 --------------------------------------------------------------------------------
 {-strings, etc. for testing-}
