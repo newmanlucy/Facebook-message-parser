@@ -346,7 +346,7 @@ makeBarLabelList ws s =
         ls
 
 ------------------------------------------------------------------------------------------
-{-graphics stuff that we are not going to use-}
+{-graphics-}
 ------------------------------------------------------------------------------------------
 
 {- make one rectangle with color depending on user and string -}
@@ -366,21 +366,24 @@ makeRectangle width maxFreq usr1 usr2 strs lbl fq scl =
                 text  = Collage.text (Text.fromString (u ++ "." ++ w ++ ":" ++ (toString fq)))
                 
                 {-newline looks like a regular space-}
-                obj  = Collage.group [rect, (Collage.moveY ((toFloat maxFreq) * (scl)/2 * -1) text)]
+                obj   = Collage.group [rect, (Collage.moveY ((toFloat maxFreq) * (scl)/2 * -1) text)]
             in
-                obj
+                rekt
 
 {-moveRectangles helper-}        
-moveRectangles_ : Int -> Float -> List Form -> List Form
-moveRectangles_ n width rs = 
-    case rs of 
-        [] -> []
-        r::rs_ -> (Collage.moveX ((toFloat n) * width) r) 
-                  :: (moveRectangles_ (n+1) width rs_)
+moveRectangles_ : Int -> Float -> List Form -> Bool -> List Form
+moveRectangles_ n width rs horiz =
+    let 
+        dir = if horiz then Collage.moveX else Collage.moveY
+    in  
+        case rs of 
+            [] -> []
+            r::rs_ -> (dir ((toFloat n) * width) r) 
+                      :: (moveRectangles_ (n+1) width rs_ horiz)
 
 {-move rectangles to be spaced next to each other // needs work-}
 moveRectangles : Float -> List Form -> List Form
-moveRectangles width rs = moveRectangles_ 0 width rs
+moveRectangles width rs = moveRectangles_ 0 width rs True
 
 {-make rectangles for a given string an list of parsed messages-}
 makeRectangles : Float -> Float -> Regex -> Regex -> List String -> List ParsedMessage -> List Form
@@ -405,16 +408,143 @@ makeRectangles width scl usr1 usr2 strs ms =
 makeCollage : Float -> List Form -> Element.Element
 makeCollage width fs = 
     let 
-        length = ((floor width) * (List.length fs)) * 3
+        length = floor (width * (toFloat (List.length fs)) * 2.2) 
     in 
         Collage.collage length length fs 
+
+
+---------------------------------------------------------------------------------
+{-labels-}
+---------------------------------------------------------------------------------
+makeLabeledBox : String -> Color -> Form 
+makeLabeledBox s c = 
+    let 
+        sq = Collage.filled c (Collage.rect 15 15)
+        text  = Collage.moveX 30.0 (Collage.text (Text.fromString ("- " ++ s)))
+        lb = Collage.group [sq,text]
+    in 
+        lb
+
+makeKey_ : List String -> Int -> List Form 
+makeKey_ strs n = 
+    let 
+        col = findElt (n%7) medColors
+        strBoxes = case strs of 
+            [] -> []
+            s::rest -> (makeLabeledBox s col)::(makeKey_ rest (n+1))
+    in 
+        strBoxes
+
+makeKey : String -> String -> List String -> Form
+makeKey usr1 usr2 strs =
+    let
+        usr1box    = makeLabeledBox usr1 Color.darkGrey 
+        usr2box    = makeLabeledBox usr2 Color.lightGrey
+        wordboxes  = makeKey_ (List.sort strs) 0
+        boxes      = List.reverse (usr1box::(usr2box::wordboxes))
+        movedBoxes = moveRectangles_ 0 25 boxes False 
+    in
+        Collage.group movedBoxes  
+
+
+---------------------------------------------------------------------------------
+{-more time and date-}
+---------------------------------------------------------------------------------
+
+{- parse messages by frequency for a function on time -}
+dateByNumberTime : List ParsedMessage -> (Date -> Int) -> Dict Int Int
+dateByNumberTime msgs f = case msgs of 
+    [] -> Dict.empty
+    hd::rest -> 
+        let 
+            d = dateByNumberTime rest f
+            date = f hd.meta.date
+            g = Dict.get date d
+        in 
+        case g of
+            Nothing -> Dict.insert date 1 d
+            Just x  -> Dict.insert date (x+1) d
+
+hourConvert : Int -> String
+hourConvert i = case i of
+    0 -> "12 am"
+    1 -> "1 am"
+    2 -> "2 am"
+    3 -> "3 am"
+    4 -> "4 am"
+    5 -> "5 am"
+    6 -> "6 am"
+    7 -> "7 am"
+    8 -> "8 am"
+    9 -> "9 am"
+    10 -> "10 am"
+    11 -> "11 am"
+    12 -> "12 pm"
+    13 -> "1 pm"
+    14 -> "2 pm"
+    15 -> "3 pm"
+    16 -> "4 pm"
+    17 -> "5 pm"
+    18 -> "6 pm"
+    19 -> "7 pm"
+    20 -> "8 pm"
+    21 -> "9 pm"
+    22 -> "10 pm"
+    23 -> "11 pm"
+    _  -> Debug.crash "Shouldn't happen"
+
+m2i : Month -> Int
+m2i m = case m of
+    Jan -> 0
+    Feb -> 1
+    Mar -> 2
+    Apr -> 3
+    May -> 4
+    Jun -> 5
+    Jul -> 6
+    Aug -> 7
+    Sep -> 8
+    Oct -> 9
+    Nov -> 10
+    Dec -> 11
+
+monthConvert : Int -> String
+monthConvert i = case i of
+    0 -> "Jan"
+    1 -> "Feb"
+    2 -> "Mar"
+    3 -> "Apr"
+    4 -> "May"
+    5 -> "Jun"
+    6 -> "Jul"
+    7 -> "Aug"
+    8 -> "Sep"
+    9 -> "Oct"
+    10 -> "Nov"
+    11 -> "Dec"
+    _  -> Debug.crash "Shouldn't happen"
+
+{-frequency of messages per hour-}
+hours : String -> List (String, Int)
+hours s  = List.map 
+        (\(x,y) -> (hourConvert x,y)) 
+        (toList (dateByNumberTime (parseMessages s) Date.hour))
+
+{-frequency of messages per month-}
+months : String -> List (String, Int)
+months s = List.map
+        (\(x,y) -> (monthConvert x, y))
+        (toList (dateByNumberTime (parseMessages s) (\x -> m2i (Date.month x))))
+
+{-frequency of messages per year-}
+years : String -> List (Int, Int)
+years s = toList (dateByNumberTime (parseMessages s) Date.year)
+
 
 ---------------------------------------------------------------------------------
 {-model, view, update, main-}
 ---------------------------------------------------------------------------------
--- when a user adds a new word, or sth changes, we want to send the list of 
--- words and the list of (BarInfo, Freq) to javascript 
--- and have JavaScript render a graph that is then sent back to Elm...?
+
 type alias Model = 
     { words : List String 
     , file : Maybe String
@@ -427,8 +557,8 @@ type Msg
     | ResetWords
     | Reset
     | Enter
-    | SendInfo
-    | GraphInfo (List String)
+    | SendInfo --not using this
+    | GraphInfo (List String) --not using this
 
 initialModel : Model
 initialModel = {words=[], file=Nothing, nextWord=""}
@@ -436,7 +566,13 @@ initialModel = {words=[], file=Nothing, nextWord=""}
 init : (Model, Cmd Msg)
 init = (initialModel, Cmd.none)
 
+-- We didnt' end up using this ---
 port sendInfo : List (BarLabel, Freq) -> Cmd msg
+port graphInfo : (List String -> msg) -> Sub msg
+
+subscriptions : Model -> Sub Msg
+subscriptions model = graphInfo GraphInfo
+----------------------------------
 
 update : Msg -> Model -> (Model, Cmd Msg) 
 update msg model = 
@@ -451,10 +587,6 @@ update msg model =
         GraphInfo ws -> ({model | words = ws}, Cmd.none)
 
 
-port graphInfo : (List String -> msg) -> Sub msg
-
-subscriptions : Model -> Sub Msg
-subscriptions model = graphInfo GraphInfo
 
 view : Model -> Html Msg 
 view model = 
@@ -464,18 +596,22 @@ view model =
         enter      = Html.button [onClick Enter] [Html.text "Enter"]
         word       = Html.input [ type_ "word", placeholder "Enter word", onInput Word ] []
         file       = Html.input [type_ "file", placeholder "Enter file", onInput File ] []
-        display    = Html.text ("Words: " ++ (toString model.words))
+        display    = Html.text ("Words: " ++ (toString (List.sort model.words)))
         enterword  = Html.span [] [word, enter]
         resets     = Html.span [] [resetWords, reset]
         send       = Html.button [onClick SendInfo] [Html.text "Send"]
         graph      = Html.button [onClick (GraphInfo ["one", "two"])] [Html.text "Graph"]
-        title      = Html.text "Graph of Message Freqencies"
+        t          = "Graph of message frequncies between Lucy and Gamal in Aug. 2016"
+        title      = Html.text t
         break      = Html.br [] []
         ms         = parseMessages u
         w          = 40
         rs         = makeRectangles w w lucyUsrRegex gamalUsrRegex model.words ms
         c          = makeCollage w rs
-        collage    = Html.div [] [Element.toHtml c] 
+        k          = Collage.collage 100 100 [makeKey "Lucy" "Gamal" model.words]
+        key        = Html.div [Attr.class "graph"] [Element.toHtml k]
+        collage    = Html.div [Attr.class "graph"] [Element.toHtml c]
+        results    = Html.span [] [collage, key] 
         all        =
             Html.div 
                 [] 
@@ -487,7 +623,8 @@ view model =
                 , display
                 , break
                 , title
-                , collage ]
+                , break
+                , results ]
     in 
         all
 
