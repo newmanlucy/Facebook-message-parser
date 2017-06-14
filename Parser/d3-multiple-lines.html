@@ -128,7 +128,7 @@
 			paths.enter().append("path").attr("class", "chart-line");
 			paths.exit().remove();
 			paths
-				.attr("d", function (d) { return line(d.values)'' })
+				.attr("d", function (d) { return line(d.values); })
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
 			colorLegendG.call(colorLegend);
