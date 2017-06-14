@@ -83,7 +83,7 @@
 		var yAxisG = g.append("g")
 			.attr("class", "y axis")
 		var yAxisLabel = yAxisG.append("text")
-			.style("text-anchor", middle)
+			.style("text-anchor", "middle")
 			.attr("transform", move(yAxisLabelOffset, innerHeight/2, true) + "rotate(-90)")
 			.attr("class", "label")
 			.text(yAxisLabelText);
