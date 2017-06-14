@@ -103,14 +103,14 @@
 		}
 
 		function type(d) {
-			console.log(d);
-//			d.timestamp = new Date(d.timestamp);
-//			d.temperature = +d.temperature;
 //			console.log(d);
+			d.timestamp = new Date(d.timestamp);
+			d.temperature = +d.temperature;
+			console.log(d);
 			return d;
 		}
 
-		d3.csv("http://localhost:8000/blah.csv")
+		d3.csv("blah.csv")
 			.row(type)
 			.get(render);
 
