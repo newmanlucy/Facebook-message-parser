@@ -1,0 +1,45 @@
+.graph {display: inline-block;}
+.largetext {
+	font-size: 22px;
+	font-family: "Arial"
+}
+.button {
+    background-color: #6C6290; /* Green */
+    border: none;
+    color: white;
+    padding: 8px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-family: "Arial";
+    outline: #002222 solid thick;
+}
+.input {
+    width: 60%;
+    padding: 8px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    outline: #002222 solid thick;
+}
+.header {
+	font-family: "Arial"
+}
+
+.break {
+	padding: 10px;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
+}
+
+background-color: rgb(255,255,128);
