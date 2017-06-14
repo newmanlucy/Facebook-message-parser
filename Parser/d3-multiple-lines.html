@@ -97,7 +97,7 @@
 		var colorScale = d3.scale.category10();
 
 		// format "B" for billion
-		var siFormat = d3.Format("s");
+		var siFormat = d3.format("s");
 		var customTickFormat = function (d) {
 			return siFormat(d).replace("G", "B");
 		};
