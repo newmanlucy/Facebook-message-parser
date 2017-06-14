@@ -92,6 +92,16 @@
 			.attr("class", "color-legend")
 			.attr("transform", move(325,0,false));
 
+		var xScale = d3.time.scale().range([0,innerWidth]);
+		var yScale = d3.scale.linear().range([innerHeight,0]);
+		var colorScale = d3.scale.category10();
+
+		// format "B" for billion
+		var siFormat = d3.Format("s");
+		var customTickFormat = function (d) {
+			return siFormat(d).replace("G", "B");
+		};
+
 		var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
 			.ticks(5)
 			.outerTickSize(0);
