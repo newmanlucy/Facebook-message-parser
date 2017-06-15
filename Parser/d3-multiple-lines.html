@@ -179,7 +179,10 @@
 			dots.exit().remove();
 			dots
 				.attr("r", 3)
-				.attr("cx", function(d) { return xScale(d.values[xColumn]); })
+				.attr("cx", function(d) { 
+					console.log(d.values);
+					console.log(d.key);
+					return xScale(d.values[xColumn]); })
 				.attr("cy", function(d) { return yScale(d.values[yColumn]); })
 				.attr("fill", function(d) { return colorScale(d.key); });
 
