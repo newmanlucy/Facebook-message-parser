@@ -181,7 +181,9 @@
 			var circles = g.selectAll("circle").data(nested);
 			circles.enter().append("circle");
 			circles
-				.attr("cx", function (d) { return xScale(d.values.year); })
+				.attr("cx", function (d) { return 
+					console.log(d);
+					xScale(d.values.year); })
 				.attr("cy", function (d) { return yScale(d.values.population); })
 				.attr("r", 3)
 				.attr("fill", function (d) { return colorScale(d.key); });
