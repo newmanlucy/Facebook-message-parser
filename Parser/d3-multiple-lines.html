@@ -182,15 +182,15 @@
 				var c = nested[country];
 				console.log(c.key);
 				console.log(c.values);
-				var circles = g.selectAll("circle").data(c.values);
+				var circleG = g.append("g");
+				var circles = circleG.selectAll("circle").data(c.values);
 				circles.enter().append("circle");
 				circles
 					.attr("cx", function (d) { return xScale(d.year); })
 					.attr("cy", function (d) { return yScale(d.population); })
 					.attr("r", 2)
 					.attr("fill", function (d) { return colorScale(c.key); });
-
-				//circles.exit().remove();
+				circles.exit().remove();
 			}
 
 			colorLegendG.call(colorLegend);
