@@ -178,6 +178,7 @@
 				.attr("d", function (d) { return line(d.values); })
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
+			console.log(nested);
 			for (country in nested) {
 				console.log(country);
 				var circles = g.selectAll("circle").data(country.values);
