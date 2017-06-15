@@ -37,6 +37,39 @@
 </head>
 <body>
 	<script>
+
+	<!--
+	/*
+	tsv format: 
+	User	word	month	freq
+
+	should be able to make a double call to the nested thing to parse this into 
+
+	[
+	{ user : "Lucy",
+		[ 
+		{ word : "lol", 
+			[ 
+			{ month: "Nov",
+				freq: "10"},
+			{ month: "Dec",
+				freq: "12"}, 
+			... ] },
+		{ word : "wow",
+			[
+			... ] },
+		... ]},
+	{ user : "Gamal",
+		[ ... ]} ]} ]
+
+	then we make a scatterplot with a different shape of dots for each user
+	and a different color of connecting lines for each word.
+
+	lol, this requires some more thinking...
+
+	*/
+
+	//-->
 		
 		var outerWidth = 500;
 		var oouterHeight = 250;
@@ -140,6 +173,15 @@
 			paths
 				.attr("d", function (d) { return line(d.values); })
 				.attr("stroke", function (d) { return colorScale(d.key); });
+
+			var dots = g.selectAll(".dot").data(nested);
+			dots.enter().append("circle").attr("class","dot");
+			dots.exit().remove();
+			dots
+				.attr("r", 3)
+				.attr("cx", function(d) { return xScale(d[xColumn]); })
+				.attr("cy", function(d) { return yScale(d[yColumn]); })
+				.attr("stroke", function(d) { return colorScale(d[colorColumn]); });
 
 			colorLegendG.call(colorLegend);
 		}
