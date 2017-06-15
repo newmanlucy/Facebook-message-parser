@@ -72,7 +72,8 @@
 	*/
 
 	//-->
-		
+		var user1 = "Lucy";
+		var user2 = "Gamal";
 		var outerWidth = 700;
 		var outerHeight = 350;
 		var margin = { left: 80, top: 5, right: 100, bottom: 60 };
@@ -126,7 +127,7 @@
 
 		var colorLegendG = g.append("g")
 			.attr("class", "color-legend")
-			.attr("transform", move(500,0,false));
+			.attr("transform", move(550,0,false));
 
 		var xScale = d3.time.scale().range([0,innerWidth]);
 		var yScale = d3.scale.linear().range([innerHeight,0]);
@@ -178,8 +179,22 @@
 				circles
 					.attr("cx", function (d) { return xScale(d.date); })
 					.attr("cy", function (d) { return yScale(d.frequency); })
-					.attr("r", 4)
-					.attr("fill", function (d) { return colorScale(w.key); });
+					.attr("r", 4);
+
+				if (d.user == user1) {
+					circles
+						.attr("fill", 
+							function (d) { return colorScale(w.key); });
+				}
+
+				else if (d.user == user2) {
+					circles
+						.attr("fill", "none");
+						.attr("stroke", 
+							function (d) { return colorScale(w.key); });
+						.attr("stroke-width", 1);
+				}
+
 				circles.exit().remove();
 			}
 
