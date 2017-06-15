@@ -164,7 +164,7 @@
 			colorScale.domain(nested.map(function (d) { return d.key; }));
 
 			var paths = g.selectAll(".chart-line").data(nested);
-			paths.enter().append("paht").attr("class", "chart-line");
+			paths.enter().append("path").attr("class", "chart-line");
 			paths.exit().remove();
 			paths
 				.attr("d", function (d) { return line(d.values); })
@@ -176,9 +176,7 @@
 				var circles = circleG.selectAll("circle").data(w.values);
 				circles.enter().append("circle");
 				circles
-					.attr("cx", function (d) { 
-						console.log(d);
-						return xScale(d.date); })
+					.attr("cx", function (d) { return xScale(d.date); })
 					.attr("cy", function (d) { return yScale(d.frequency); })
 					.attr("r", 4)
 					.attr("fill", function (d) { return colorScale(w.key); });
