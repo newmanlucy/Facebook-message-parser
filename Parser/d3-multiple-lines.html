@@ -147,12 +147,19 @@
 			.x(function(d) { return xScale(d[xColumn]); })
 			.y(function(d) { return yScale(d[yColumn]); });
 
+		var circle = d3.svg.circle()
+			.cx(function(d) { return xScale(d[xColumn])})
+
 		var colorLegend = d3.legend.color()
 			.scale(colorScale)
 			.shapePadding(3)
 			.shapeWidth(15)
 			.shapeHeight(15)
 			.labelOffset(4);
+
+
+		// scatter plot
+
 
 		function render(data) {
 			xScale.domain(d3.extent(data, function (d) { return d[xColumn]; }));
@@ -174,8 +181,15 @@
 				.attr("d", function (d) { return line(d.values); })
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
-			console.log(nested);
+			var circles = g.selectAll("circle").data(nested);
+			circles.enter().append("circle");
+			circles
+				.attr("cx", function (d) { return xScale(d.values.year); })
+				.attr("cy", function (d) { return yScale(d.values.population); })
+				.attr("r", 3)
+				.attr("fill", function (d) { return colorScale(d.key); });
 
+			circles.exit().remove();
 
 			colorLegendG.call(colorLegend);
 		}
