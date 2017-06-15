@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>D3 multiple lines</title>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/1.1.0/d3-legend.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        
+    <style>
+
+      .chart-line {
+        fill: none;
+        stroke-width: 1.5px;
+      }
+    
+      .axis text {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 12pt;
+      }
+      .axis .label {
+        font-size: 18pt;
+      }
+
+      .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .color-legend text {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 12pt;
+      }
+
+    </style>
+</head>
+<body>
+	<script>
+
+	<!--
+	/*
+	tsv format: 
+	User	word	month	freq
+
+	should be able to make a double call to the nested thing to parse this into 
+
+	[
+	{ user : "Lucy",
+		[ 
+		{ word : "lol", 
+			[ 
+			{ month: "Nov",
+				freq: "10"},
+			{ month: "Dec",
+				freq: "12"}, 
+			... ] },
+		{ word : "wow",
+			[
+			... ] },
+		... ]},
+	{ user : "Gamal",
+		[ ... ]} ]} ]
+
+	then we make a scatterplot with a different shape of dots for each user
+	and a different color of connecting lines for each word.
+
+	lol, this requires some more thinking...
+
+	user	word	year	month	frequency
+
+	*/
+
+	//-->
+		
+		var outerWidth = 500;
+		var outerHeight = 250;
+		var margin = { left: 80, top: 5, right: 100, bottom: 60 };
+
+		function move (right, down, minus) {
+			if (minus) {
+				return "translate(-" + right + "," + down + ")";
+			}
+			else {
+				return "translate(" + right + "," + down + ")";
+			}
+		}
+
+		var xCol = "date"
+		var yCol = "frequency";
+		var colorCol = "word";
+		var shapeCol = "user";
+		var lineCol = colorCol;
+
+		var xAxisLabelText = "Time";
+		var xAxisLabelOffset = 48;
+
+		var yAxisLabelText = "Word frequency";
+		var yAxisLabelOffset = 60;
+
+		var innerWidth = outerWidth - margin.left - margin.right;
+		var innerHeight = outerHeight - margin.top - margin.bottom;
+
+		var svg = d3.select("body").append("svg")
+			.attr("width", outerWidth)
+			.attr("height", outerHeight);
+		var g = svg.append("g")
+			.attr("transform", move(margin.left, margin.top, false));
+
+		var xAxisG = g.append("g")
+			.attr("class", "x axis")
+			.attr("transform", move(0, innerHeight, false));
+		var xAxisLabel = xAxisG.append("text")
+			.style("text-anchor", "middle")
+			.attr("transform", move(innerWidth/2, xAxisLabelOffset, false));
+			.attr("class", "label")
+			.text(xAxisLabelText);
+
+		var yAxisG = g.append("g")
+			.attr("class", "y axis")
+		var yAxisLabel = yAxisG.append("text")
+			.style("text-anchor", "middle")
+			.attr("transform", move(yAxisLabelOffset, innerHeight/2, true) + " rotate(-90)")
+			.attr("class", "label")
+			.text(yAxisLabelText);
+
+		var colorLegend = g.append("g")
+			.attr("class", "color-legend")
+			.attr("transform", move(325,0,false));
+
+		var xScale = d3.time.scale().range([0,innerWidth]);
+		var yScale = d3.scale.linear().range([innerHeight,0]);
+		var colorScaler = d3.scale.category10();
+
+		var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
+			.ticks(5)
+			.outerTickSize(0);
+		var yAxis = d3.svg.axis().scale(yScale).orient("left")
+			.ticks(5)
+			.outerTickSize(0);
+
+		var line = d3.line()
+			.x(function (d) { return xScale(d[xCol]); })
+			.y(function (d) { return yScale(d[yCol]); });
+
+		var colorLegen = d3.legend.color()
+			.scale(colorScale)
+			.shapePadding(3)
+			.shapeWidth(15)
+			.shapeHeight(15)
+			.labelOffest(4);
+
+		function render(data) {
+			xScale.domain(d3.extent(data, function (d) { return d[xCol]; }));
+			yScale.domain([0, d3.max(data, function (d) { return d[yCol]; })]);
+
+			xAxisG.call(xAxis);
+			yAxisG.call(yAxis);
+
+			var nested = d3.nest()
+				.key(function (d) { return d[lineCol]; })
+				.entries(data);
+
+			colorScale.domain(nested.map(function (d) { return d.key; }));
+
+			var paths = g.selectAll(".chart-line").data(nested);
+			paths.enter().append("paht").attr("class", "chart-line");
+			paths.exit().remove();
+			paths
+				.attr("d", function (d) { return line(d.values); })
+				.attr("stroke", function (d) { return colorScale(d.key); });
+
+			for (i in nested) {
+				var w = nested[i];
+				var circleG = g.append("g");
+				var circles = circleG.selectAll("circle").data(w.values);
+				var cricles.enter().append("circle");
+				circles 
+					.attr("cx", function (d) { return xScale(d.date); })
+					.attr("cy", function (d) { return yScale(d.frequency); })
+					.attr("r", 4)
+					.attr("fill", function (d) { return colorScale(w.key); });
+				circles.exit().remove();
+			}
+
+			colorLegentG.call(colorLegend);
+
+		}
+
+		function type(d) {
+			//user	word	year	month	frequency
+			d.user = d.user;
+			d.word = d.word;
+			d.date = new Date (d.date); //date.parse or whatever
+			d.frequency = +d.frequency;
+			return d;
+		}
+
+		d3.tsv("convo-data.tsv", type, render);
+
+	</script>
+</body>
+</html>
