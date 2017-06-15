@@ -139,7 +139,7 @@
 			.ticks(5)
 			.outerTickSize(0);
 
-		var line = d3.line()
+		var line = d3.svg.line()
 			.x(function (d) { return xScale(d[xCol]); })
 			.y(function (d) { return yScale(d[yCol]); });
 
