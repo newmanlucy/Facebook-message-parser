@@ -190,10 +190,10 @@
 		}
 
 		function type(d) {
-			//user	word	year	month	frequency
+			//user	word	date	frequency
 			d.user = d.user;
 			d.word = d.word;
-			d.date = Date.parse(d.date); //date.parse or whatever
+			d.date = new Date(Date.parse(d.date)); //date.parse or whatever
 			d.frequency = +d.frequency;
 			return d;
 		}
