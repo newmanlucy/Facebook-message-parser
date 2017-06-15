@@ -179,10 +179,10 @@
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
 			console.log(nested);
-			for (country in nested) { console.log(country); }
+			for (country in nested) { console.log(nested[country]); }
 
 			for (country in nested) {
-				var circles = g.selectAll("circle").data(country.values);
+				var circles = g.selectAll("circle").data(nested[country].values);
 				circles.enter().append("circle");
 				circles
 					.attr("cx", function (d) {  
@@ -192,7 +192,7 @@
 
 						yScale(d.population); })
 					.attr("r", 3)
-					.attr("fill", function (d) { return colorScale(country.key); });
+					.attr("fill", function (d) { return colorScale(nested[country].key); });
 
 				circles.exit().remove();
 			}
