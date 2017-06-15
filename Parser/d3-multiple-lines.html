@@ -174,18 +174,17 @@
 				.attr("d", function (d) { return line(d.values); })
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
-			for (i in d.values) {
-				var dots = g.selectAll(".dot").data(nested);
-				dots.enter().append("circle").attr("class","dot");
-				dots.exit().remove();
-				dots
-					.attr("r", 3)
-					.attr("cx", function(d) { 
-						console.log(i);
-						console.log(d.key);
-						return xScale(d.values[xColumn]); })
-					.attr("cy", function(d) { return yScale(d.values[yColumn]); })
-					.attr("fill", function(d) { return colorScale(d.key); });
+			for (country in nested) {
+				for (i in country.values) {
+					console.log(i);
+					var dots = g.selectAll(".dot").data(nested);
+					dots.enter().append("circle").attr("class","dot");
+					dots
+						.attr("r", 3)
+						.attr("cx", function(d) { return xScale(d.values[xColumn]); })
+						.attr("cy", function(d) { return yScale(d.values[yColumn]); })
+						.attr("fill", function(d) { return colorScale(d.key); });
+				}
 			}
 
 			colorLegendG.call(colorLegend);
