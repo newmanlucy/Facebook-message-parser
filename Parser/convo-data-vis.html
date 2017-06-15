@@ -143,12 +143,12 @@
 			.x(function (d) { return xScale(d[xCol]); })
 			.y(function (d) { return yScale(d[yCol]); });
 
-		var colorLegen = d3.legend.color()
+		var colorLegend = d3.legend.color()
 			.scale(colorScale)
 			.shapePadding(3)
 			.shapeWidth(15)
 			.shapeHeight(15)
-			.labelOffest(4);
+			.labelOffset(4);
 
 		function render(data) {
 			xScale.domain(d3.extent(data, function (d) { return d[xCol]; }));
