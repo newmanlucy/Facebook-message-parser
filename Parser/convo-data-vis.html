@@ -179,19 +179,22 @@
 				circles
 					.attr("cx", function (d) { return xScale(d.date); })
 					.attr("cy", function (d) { return yScale(d.frequency); })
-					.attr("r", 4);
-
-				if (d.user == user1) {
-					circles
-						.attr("fill", function (d) { return colorScale(w.key); });
-				}
-
-				else if (d.user == user2) {
-					circles
-						.attr("fill", "none")
-						.attr("stroke", function (d) { return colorScale(w.key); })
-						.attr("stroke-width", 1);
-				}
+					.attr("r", 4)
+					.attr("stroke", function (d) { return colorScale(w.key); })
+					.attr("stroke-width", 1)
+					.attr("fill", 
+						function (d) {
+							if (d.user == user1) {
+								return colorScale(w.key);
+							}
+							else if (d.user == user2) {
+								return "none";
+							}
+							else {
+								console.log("error");
+								return "not sure how to deal with errors lol";
+							}
+						});
 
 				circles.exit().remove();
 			}
