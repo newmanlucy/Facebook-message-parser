@@ -176,14 +176,16 @@
 				var circles = circleG.selectAll("circle").data(w.values);
 				circles.enter().append("circle");
 				circles
-					.attr("cx", function (d) { return xScale(d.date); })
+					.attr("cx", function (d) { 
+						console.log(d);
+						return xScale(d.date); })
 					.attr("cy", function (d) { return yScale(d.frequency); })
 					.attr("r", 4)
 					.attr("fill", function (d) { return colorScale(w.key); });
 				circles.exit().remove();
 			}
 
-			colorLegentG.call(colorLegend);
+			colorLegendG.call(colorLegend);
 
 		}
 
