@@ -73,8 +73,8 @@
 
 	//-->
 		
-		var outerWidth = 500;
-		var outerHeight = 250;
+		var outerWidth = 700;
+		var outerHeight = 350;
 		var margin = { left: 80, top: 5, right: 100, bottom: 60 };
 
 		function move (right, down, minus) {
@@ -126,7 +126,7 @@
 
 		var colorLegendG = g.append("g")
 			.attr("class", "color-legend")
-			.attr("transform", move(325,0,false));
+			.attr("transform", move(500,0,false));
 
 		var xScale = d3.time.scale().range([0,innerWidth]);
 		var yScale = d3.scale.linear().range([innerHeight,0]);
