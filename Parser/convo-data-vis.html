@@ -183,15 +183,13 @@
 
 				if (d.user == user1) {
 					circles
-						.attr("fill", 
-							function (d) { return colorScale(w.key); });
+						.attr("fill", function (d) { return colorScale(w.key); });
 				}
 
 				else if (d.user == user2) {
 					circles
-						.attr("fill", "none");
-						.attr("stroke", 
-							function (d) { return colorScale(w.key); });
+						.attr("fill", "none")
+						.attr("stroke", function (d) { return colorScale(w.key); })
 						.attr("stroke-width", 1);
 				}
 
