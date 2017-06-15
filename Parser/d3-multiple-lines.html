@@ -147,9 +147,6 @@
 			.x(function(d) { return xScale(d[xColumn]); })
 			.y(function(d) { return yScale(d[yColumn]); });
 
-		var circle = d3.svg.circle()
-			.cx(function(d) { return xScale(d[xColumn])})
-
 		var colorLegend = d3.legend.color()
 			.scale(colorScale)
 			.shapePadding(3)
