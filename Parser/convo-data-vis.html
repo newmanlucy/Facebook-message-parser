@@ -130,7 +130,7 @@
 
 		var xScale = d3.time.scale().range([0,innerWidth]);
 		var yScale = d3.scale.linear().range([innerHeight,0]);
-		var colorScaler = d3.scale.category10();
+		var colorScale = d3.scale.category10();
 
 		var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
 			.ticks(5)
