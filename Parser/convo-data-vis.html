@@ -112,12 +112,12 @@
 			.attr("transform", move(0, innerHeight, false));
 		var xAxisLabel = xAxisG.append("text")
 			.style("text-anchor", "middle")
-			.attr("transform", move(innerWidth/2, xAxisLabelOffset, false));
+			.attr("transform", move(innerWidth/2, xAxisLabelOffset, false))
 			.attr("class", "label")
 			.text(xAxisLabelText);
 
 		var yAxisG = g.append("g")
-			.attr("class", "y axis")
+			.attr("class", "y axis");
 		var yAxisLabel = yAxisG.append("text")
 			.style("text-anchor", "middle")
 			.attr("transform", move(yAxisLabelOffset, innerHeight/2, true) + " rotate(-90)")
