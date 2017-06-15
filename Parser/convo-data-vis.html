@@ -173,9 +173,9 @@
 			for (i in nested) {
 				var w = nested[i];
 				var circleG = g.append("g");
-				var circles = circleG.selectAll("circle").data(w.values);
-				var circles.enter().append("circle");
-				circles 
+				var circles = circleG.selectAll("circle").data(c.values);
+				circles.enter().append("circle");
+				circles
 					.attr("cx", function (d) { return xScale(d.date); })
 					.attr("cy", function (d) { return yScale(d.frequency); })
 					.attr("r", 4)
