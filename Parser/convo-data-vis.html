@@ -173,7 +173,7 @@
 			for (i in nested) {
 				var w = nested[i];
 				var circleG = g.append("g");
-				var circles = circleG.selectAll("circle").data(c.values);
+				var circles = circleG.selectAll("circle").data(w.values);
 				circles.enter().append("circle");
 				circles
 					.attr("cx", function (d) { return xScale(d.date); })
