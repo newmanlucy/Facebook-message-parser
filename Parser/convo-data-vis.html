@@ -165,46 +165,46 @@
 
 			colorScale.domain(nested.map(function (d) { return d.key; }));
 
-// w for word, u for user
-for (i in nested) {
-	var w = nested[i];
-	for (j in w.values) {
-		var u = w.values[j];
-		var paths = g.selectAll(".chart-line").data(u);
-		paths.enter().append("path").attr("class", "chart-line");
-		paths.exit().remove();
-		paths
-			.attr("d", function (d) { 
-				console.log(d);
-				return line(d.values); })
-			.attr("fill", "none")
-			.attr("stroke", function (d) { return colorScale(w.key); });
+			// w for word, u for user
+			for (i in nested) {
+				var w = nested[i];
+				for (j in w.values) {
+					var u = w.values[j];
+					var paths = g.selectAll(".chart-line").data(u);
+					paths.enter().append("path").attr("class", "chart-line");
+					paths.exit().remove();
+					paths
+						.attr("d", function (d) { 
+							console.log(d);
+							return line(d.values); })
+						.attr("fill", "none")
+						.attr("stroke", function (d) { return colorScale(w.key); });
 
-		var circleG = g.append("g");
-		var circles = circleG.selectAll("circle").data(u.values);
-		circles.enter().append("circle");
-		circles
-			.attr("cx", function (d) { return xScale(d.date); })
-			.attr("cy", function (d) { return yScale(d.frequency); })
-			.attr("r", 4)
-			.attr("stroke", function (d) { return colorScale(w.key); })
-			.attr("stroke-width", 1)
-			.attr("fill", 
-				function (d) {
-					if (d.user == user1) {
-						return colorScale(u.key);
-					}
-					else if (d.user == user2) {
-						return "white";
-					}
-					else {
-						console.log("error");
-						return "not sure how to deal with errors lol";
-					}
-				});
+					var circleG = g.append("g");
+					var circles = circleG.selectAll("circle").data(u.values);
+					circles.enter().append("circle");
+					circles
+						.attr("cx", function (d) { return xScale(d.date); })
+						.attr("cy", function (d) { return yScale(d.frequency); })
+						.attr("r", 4)
+						.attr("stroke", function (d) { return colorScale(w.key); })
+						.attr("stroke-width", 1)
+						.attr("fill", 
+							function (d) {
+								if (d.user == user1) {
+									return colorScale(u.key);
+								}
+								else if (d.user == user2) {
+									return "white";
+								}
+								else {
+									console.log("error");
+									return "not sure how to deal with errors lol";
+								}
+							});
 
-		circles.exit().remove();
-}
+					circles.exit().remove();
+			}
 
 			colorLegendG.call(colorLegend);
 
