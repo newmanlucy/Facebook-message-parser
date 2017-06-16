@@ -134,11 +134,11 @@
 
 		var colorLegendG = g.append("g")
 			.attr("class", "color-legend")
-			.attr("transform", move(550,50,false));
+			.attr("transform", move(550,150,false));
 
 		var symbolLegendG = g.append("g")
 			.attr("class", "symbol-legend") //get height of color legend
-			.attr("transform", move(558,5,false));
+			.attr("transform", move(558,105,false));
 
 		var xScale = d3.time.scale().range([0,innerWidth]);
 		var yScale = d3.scale.linear().range([innerHeight,0]);
