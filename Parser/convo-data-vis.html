@@ -129,6 +129,10 @@
 			.attr("class", "color-legend")
 			.attr("transform", move(550,0,false));
 
+		var symbolLegendG = g.append("g")
+			.attr("class", "symbol-legend") //get height of color legend
+			.attr("transform", move(550,200,false));
+
 		var xScale = d3.time.scale().range([0,innerWidth]);
 		var yScale = d3.scale.linear().range([innerHeight,0]);
 		var colorScale = d3.scale.category10();
@@ -149,7 +153,20 @@
 			.shapePadding(3)
 			.shapeWidth(15)
 			.shapeHeight(15)
+			.title("Key")
 			.labelOffset(4);
+
+		var tri = d3.symbol.type(d3.symbolTriangle)();
+		var circ = d3.symbol.type(d3.symbolCircle)();
+
+		var symbolScale = d3.scaleOrdinal()
+			.domain([user1,user2])
+			.range([tri,circ]);
+
+		var symbolLegend = d3.legendSymbol()
+			.orient("horizontal")
+			.scale(symbolScale)
+			.labelWrap(30);
 
 		function render(data) {
 			xScale.domain(d3.extent(data, function (d) { return d[xCol]; }));
@@ -216,6 +233,7 @@
 			}
 
 			colorLegendG.call(colorLegend);
+			symbolLegendG.call(symbolLegend);
 
 		}
 
