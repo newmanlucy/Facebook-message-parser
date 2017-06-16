@@ -138,7 +138,7 @@
 
 		var symbolLegendG = g.append("g")
 			.attr("class", "symbol-legend") //get height of color legend
-			.attr("transform", move(550,0,false));
+			.attr("transform", move(560,0,false));
 
 		var xScale = d3.time.scale().range([0,innerWidth]);
 		var yScale = d3.scale.linear().range([innerHeight,0]);
@@ -169,7 +169,7 @@
 		var symbolLegend = d3.legend.color()
 			.scale(symbolScale)
 			.shape("path", d3.svg.symbol().type("circle")())
-			.shapePadding(10)
+			.shapePadding(7)
 			.labelOffset(4);
 
 		function render(data) {
