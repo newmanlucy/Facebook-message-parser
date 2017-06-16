@@ -79,6 +79,8 @@
 	//-->
 		var user1 = "Lucy";
 		var user2 = "Gamal";
+		var user1color = "DimGrey";
+		var user2color = "LightGrey";
 		var outerWidth = 700;
 		var outerHeight = 350;
 		var margin = { left: 80, top: 5, right: 100, bottom: 60 };
@@ -162,7 +164,7 @@
 
 		var symbolScale = d3.scale.ordinal()
 			.domain([user1,user2])
-			.range(["black", "white"]);
+			.range([user1color, user2color]);
 
 		var symbolLegend = d3.legend.color()
 			.scale(symbolScale)
@@ -219,10 +221,10 @@
 						.attr("fill", 
 							function (d) {
 								if (d.user == user1) {
-									return "black";
+									return user1color;
 								}
 								else if (d.user == user2) {
-									return "white";
+									return user2color;
 								}
 								else {
 									console.log("error");
