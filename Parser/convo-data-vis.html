@@ -168,7 +168,7 @@
 
 		var symbolLegend = d3.legend.color()
 			.scale(symbolScale)
-			.shape("path",d3.svg.symbol().type("circle").size(150))
+			.shape("path",d3.svg.symbol().type("circle").size(150()))
 			.shapePadding(3)
 			.labelOffset(4);
 
@@ -196,9 +196,7 @@
 					paths.enter().append("path").attr("class", "chart-line");
 					paths.exit().remove();
 					paths
-						.attr("d", function (d) { 
-							console.log(d);
-							return line(d.values[i].values); })
+						.attr("d", function (d) { return line(d.values[i].values); })
 						.attr("fill", "none")
 						.attr("stroke", function (d) { return colorScale(d.key); });
 				}
