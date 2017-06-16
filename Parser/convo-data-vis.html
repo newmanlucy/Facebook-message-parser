@@ -160,11 +160,7 @@
 			.shapeHeight(15)
 			.labelOffset(4);
 
-		var tri = d3.svg.symbol().type('triangle-up')
-			.size(25)
-			.attr("fill", "white")
-			.attr("stroke", "black")
-			.attr("stroke-width", 1)();
+		var tri = d3.svg.symbol().type('triangle-up').size(25)();
 		var circ = d3.svg.symbol().type('circle').size(35)();
 
 		var symbolScale = d3.scale.ordinal()
