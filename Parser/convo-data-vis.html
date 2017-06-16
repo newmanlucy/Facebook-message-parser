@@ -181,7 +181,7 @@
 							console.log(d);
 							return line(d.values[i].values); })
 						.attr("fill", "none")
-						.attr("stroke", function (d) { return colorScale(w.key); });
+						.attr("stroke", function (d) { return colorScale(d.key); });
 
 					var circleG = g.append("g");
 					var circles = circleG.selectAll("circle").data(u.values);
