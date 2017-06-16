@@ -169,7 +169,9 @@
 			paths.enter().append("path").attr("class", "chart-line");
 			paths.exit().remove();
 			paths
-				.attr("d", function (d) { return line(d.values.values); })
+				.attr("d", function (d) { 
+					console.log(d);
+					return line(d.values.values); })
 				.attr("fill", "none")
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
