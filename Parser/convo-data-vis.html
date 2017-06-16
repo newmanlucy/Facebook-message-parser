@@ -160,6 +160,7 @@
 
 			var nested = d3.nest()
 				.key(function (d) { return d[lineCol]; })
+				.key(function (d) { return d[shapeCol]; })
 				.entries(data);
 
 			colorScale.domain(nested.map(function (d) { return d.key; }));
@@ -168,12 +169,13 @@
 			paths.enter().append("path").attr("class", "chart-line");
 			paths.exit().remove();
 			paths
-				.attr("d", function (d) { return line(d.values); })
+				.attr("d", function (d) { return line(d.values.values); })
 				.attr("fill", "none")
 				.attr("stroke", function (d) { return colorScale(d.key); });
 
 			for (i in nested) {
-				var w = nested[i];
+				for (j in nested[i].values)
+				var w = nested[i].values[j];
 				var circleG = g.append("g");
 				var circles = circleG.selectAll("circle").data(w.values);
 				circles.enter().append("circle");
