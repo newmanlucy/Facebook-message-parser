@@ -155,8 +155,8 @@
 			.shapeHeight(15)
 			.labelOffset(4);
 
-		var tri = d3.symbol().type(d3.symbolTriangle)();
-		var circ = d3.symbol().type(d3.symbolCircle)();
+		var tri = d3.svg.symbol().type('triangle-up')();
+		var circ = d3.svg.symbol().type('circle')();
 
 		var symbolScale = d3.scaleOrdinal()
 			.domain([user1,user2])
