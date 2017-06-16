@@ -158,7 +158,7 @@
 		var tri = d3.svg.symbol().type('triangle-up')();
 		var circ = d3.svg.symbol().type('circle')();
 
-		var symbolScale = d3.scaleOrdinal()
+		var symbolScale = d3.scale.ordinal()
 			.domain([user1,user2])
 			.range([tri,circ]);
 
