@@ -168,10 +168,8 @@
 			// w for word, u for user
 			for (i in nested) {
 				var w = nested[i];
-				console.log(w);
 				for (j in w.values) {
 					var u = w.values[j];
-					console.log(u);
 					var pathG = g.append("g");
 					var paths = pathG.selectAll(".chart-line").data(nested);
 					paths.enter().append("path").attr("class", "chart-line");
@@ -182,7 +180,14 @@
 							return line(d.values[i].values); })
 						.attr("fill", "none")
 						.attr("stroke", function (d) { return colorScale(d.key); });
+				}
+			}
 
+			// drawing separately so the circles are in front
+			for (i in nested) {
+				var w = nested[i];
+				for (j in w.values) {
+					var u = w.values[j];
 					var circleG = g.append("g");
 					var circles = circleG.selectAll("circle").data(u.values);
 					circles.enter().append("circle");
