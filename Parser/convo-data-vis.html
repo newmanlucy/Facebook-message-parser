@@ -168,8 +168,10 @@
 			// w for word, u for user
 			for (i in nested) {
 				var w = nested[i];
+				console.log(w);
 				for (j in w.values) {
 					var u = w.values[j];
+					console.log(u);
 					var paths = g.selectAll(".chart-line").data(u);
 					paths.enter().append("path").attr("class", "chart-line");
 					paths.exit().remove();
