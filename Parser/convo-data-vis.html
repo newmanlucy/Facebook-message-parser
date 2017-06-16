@@ -164,7 +164,11 @@
 
 		var symbolLegend = d3.legend.symbol()
 			.scale(symbolScale)
-			.orient("vertical");
+			.orient("vertical")
+			.shapePadding(3)
+			.shapeWidth(15)
+			.shapeHeight(15)
+			.labelOffset(4);
 
 		function render(data) {
 			xScale.domain(d3.extent(data, function (d) { return d[xCol]; }));
