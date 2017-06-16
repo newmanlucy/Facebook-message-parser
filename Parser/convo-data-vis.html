@@ -172,13 +172,14 @@
 				for (j in w.values) {
 					var u = w.values[j];
 					console.log(u);
-					var paths = g.selectAll(".chart-line").data(u);
+					var pathG = g.append("g");
+					var paths = pathG.selectAll(".chart-line").data(nested);
 					paths.enter().append("path").attr("class", "chart-line");
 					paths.exit().remove();
 					paths
 						.attr("d", function (d) { 
 							console.log(d);
-							return line(d.values); })
+							return line(d.values[i].values); })
 						.attr("fill", "none")
 						.attr("stroke", function (d) { return colorScale(w.key); });
 
